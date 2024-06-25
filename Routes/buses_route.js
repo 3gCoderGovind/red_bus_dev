@@ -4,7 +4,7 @@
 // delete bus
 
 const express=require('express');
-const { get_bus_by_route,create_bus,update_bus,delete_bus } = require('../Api/bus_api')
+const { get_bus_by_route,create_bus,update_bus,delete_bus } = require('../Buses/bus_api')
 const router=express.Router();
 
 router.post('/get',get_bus_by_route);
