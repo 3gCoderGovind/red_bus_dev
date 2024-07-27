@@ -3,7 +3,63 @@ const { mysql_connect } = require("../db_connection/mysql_connection");
 
 const create_users = async (req, res) => {
     try {
-        // let location=await mysql_connect('SELECT * FROM city_info');
+//         const seat_table = `
+//   CREATE TABLE IF NOT EXISTS seats(
+//     seat_id VARCHAR(50) PRIMARY KEY,
+//     seat_number VARCHAR(50),
+//     bus_id VARCHAR(50),
+//     seat_type VARCHAR(50),
+//     seat_price FLOAT,
+//     FOREIGN KEY (bus_id) REFERENCES buses(bus_id)
+// )`;
+        
+
+    const reservation_table = `
+    CREATE TABLE IF NOT EXISTS reservations (
+        reservation_id VARCHAR(50) PRIMARY KEY,
+        pnr_number VARCHAR(50),
+        bus_id VARCHAR(50),
+        seat_id VARCHAR(50),
+        user_id VARCHAR(50),
+        payment_id VARCHAR(50),
+        ticket_id VARCHAR(50), 
+        source_location VARCHAR(50),
+        destination_location VARCHAR(50),
+        total_distance FLOAT,
+        total_duration FLOAT,
+        total_amount FLOAT,
+        date_of_reservation TIMESTAMP,
+        date_of_journey TIMESTAMP,
+        time_of_journey TIMESTAMP,
+        boarding_location VARCHAR(50),
+        status ENUM('pending', 'completed', 'failed') NOT NULL DEFAULT 'pending',
+        FOREIGN KEY (bus_id) REFERENCES buses(bus_id),
+        FOREIGN KEY (seat_id) REFERENCES seats(seat_id),
+        FOREIGN KEY (user_id) REFERENCES users(user_id),
+        FOREIGN KEY (payment_id) REFERENCES payments(payment_id),
+        FOREIGN KEY (source_location) REFERENCES locations(location_id),
+        FOREIGN KEY (destination_location) REFERENCES locations(location_id),
+        FOREIGN KEY (boarding_location) REFERENCES locations(location_id)
+    )
+    `;
+    const payment_table = `
+    CREATE TABLE IF NOT EXISTS payments (
+        payment_id VARCHAR(50) PRIMARY KEY,
+        transaction_id VARCHAR(100) NOT NULL,
+        user_id VARCHAR(50) NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        payment_date DATETIME NOT NULL,
+        payment_method VARCHAR(50) NOT NULL,
+        status ENUM('pending', 'completed', 'failed', 'refunded') NOT NULL DEFAULT 'pending',
+        currency VARCHAR(10) NOT NULL,
+        description TEXT,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    )
+    `;
+    
+    //     ' 
+    //     '
+        // let location=await mysql_connect('SELECT * FROM ind_db');
         // location.forEach(async element => {
         //     const id = 'LOC-'+uuidv4();
         //      let query=`insert into locations(location_id,location_name,location_city,location_state,location_country,lan,lat,bus_array)
@@ -24,16 +80,16 @@ const create_users = async (req, res) => {
 
 
      
-        // const user_table = `
-        //     CREATE TABLE IF NOT EXISTS users (
-        //         user_id VARCHAR(50) PRIMARY KEY,
-        //         user_type VARCHAR(50),
-        //         first_name VARCHAR(50) NOT NULL,
-        //         last_name VARCHAR(50),
-        //         email VARCHAR(50) NOT NULL UNIQUE,
-        //         password VARCHAR(50) NOT NULL,
-        //         phone_number VARCHAR(20),
-        //     )`;
+//         const user_table = `
+//          CREATE TABLE IF NOT EXISTS users (
+//     user_id VARCHAR(50) PRIMARY KEY,
+//     user_type VARCHAR(50),
+//     first_name VARCHAR(50) NOT NULL,
+//     last_name VARCHAR(50),
+//     email VARCHAR(50) NOT NULL UNIQUE,
+//     password VARCHAR(50) NOT NULL,
+//     phone_number VARCHAR(50)
+// )`;
 
         // // const seat_table=`create table if not exists seat(
         // // seat_id varchar(50) primary key,
@@ -73,13 +129,20 @@ const create_users = async (req, res) => {
         //         bus_array JSON
         //     )`;
         
-        // const [l_result, u_result, b_result] = await Promise.all([
-        //     mysql_connect(location_table),
-        //     mysql_connect(user_table),
-        //     mysql_connect(bus_table)
-        // ]);
+     
+try {
+    const [reservation_result, payment_result] = await Promise.all([
+     //   mysql_connect(seat_table),
+        mysql_connect(reservation_table),
+        mysql_connect(payment_table)
+    ]);
 
-        // console.log(u_result, b_result, l_result);
+    ///console.log('Tables created successfully:', { seat_result, reservation_result, payment_result });
+} catch (error) {
+   // console.error('Error creating tables:', error);
+}
+     
+//         // console.log(u_result, b_result, l_result);
         return res.status(200).send({ result: 'ok' });
     } catch (error) {
         console.error(error);

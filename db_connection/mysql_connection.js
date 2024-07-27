@@ -6,10 +6,10 @@ const pool = mysql.createPool({
   host: 'localhost', // Replace with your host name
   user: 'root', // Replace with your database username
   password: 'Admin@1234', // Replace with your database password
-  database: 'ind_city_db' // Replace with your database name
+  database: 'red_bus' // Replace with your database name
 });
 
-const mysql_connect = async (query, values) => {
+const mysql_connect = async (query, values=null) => {
   return new Promise((resolve, reject) => {
     // Get a connection from the pool
     pool.getConnection((err, connection) => {

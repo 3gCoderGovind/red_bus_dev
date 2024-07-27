@@ -1,11 +1,14 @@
 const { v4: uuidv4 } = require('uuid');
 const { mysql_connect } = require("../db_connection/mysql_connection");
 const {get_route_distance}=require('../ThirdPartyApi/get_route_distance');
+const {get_all_seats_by_bus_id}=require("./get_all_seats_of_bus");
+const {get_reserved_seats_by_bus_id}=require("./get_reserved_seat");
 
 const get_bus_by_route=async(req,res)=>{
     try{
         const source_location_id=req?.body?.source_location;
         const destination_location_id=req?.body?.destination_location;
+        const date_of_travel=req?.body?.date;
         const arrive_buses_array=[];
         if(!source_location_id || !destination_location_id){
             return res.status(400).send({"error":"enter valid locations"});
@@ -34,12 +37,20 @@ const get_bus_by_route=async(req,res)=>{
             all_buses[destination_buses[i]] = 1;
            }
        }
-  
+     
      for(let key in all_buses){
+        console.log(key);
          if(all_buses[key]>1) arrive_buses_array.push(key);
      }
+    // get available and non-available seats of  arrived buses
+    let response={"date":date_of_travel,"source":source_location_id,"destination":destination_location_id,"bus":{}};
+    for(let i=0;i<arrive_buses_array.length;i++){
+        const all_seats= await get_all_seats_by_bus_id(arrive_buses_array[i]);
+        const all_reserved_seats=await get_reserved_seats_by_bus_id( arrive_buses_array[i] , date_of_travel );
+        response['bus'][arrive_buses_array[i]]={"total_seats": all_seats.length,"all_seat_ids":all_seats,"reserved_seats_ids":all_reserved_seats};
+    }
+    return res.status(200).send(response);
 
-     return res.status(200).send(arrive_buses_array);
     }
     catch(error){
         console.log(error);
